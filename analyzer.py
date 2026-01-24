@@ -3,7 +3,7 @@ from textblob import TextBlob
 from rake_nltk import Rake
 import nltk
 
-# NLTK verilerini indir (gerekirse)
+# Download NLTK data if needed
 try:
     nltk.data.find('tokenizers/punkt')
 except LookupError:
@@ -32,7 +32,7 @@ class BookAnalyzer:
         # Keywords
         keywords = self._extract_keywords(text)
 
-        # Mood/Atmosphere words (duygusal kelimeler)
+        # Mood/Atmosphere words (emotional words)
         mood_words = self._extract_mood_words(doc)
 
         # Literary features (common adjectives, verbs)
@@ -52,10 +52,10 @@ class BookAnalyzer:
         for ent in doc.ents:
             if ent.label_ == 'PERSON':
                 characters.append(ent.text)
-        # Tekrarları kaldır ve say
+        # Remove duplicates and count
         from collections import Counter
         char_counts = Counter(characters)
-        return dict(char_counts.most_common(10))  # En sık 10 karakter
+        return dict(char_counts.most_common(10))  # Top 10 most frequent characters
 
     def _analyze_sentiment(self, text):
         """Analyze overall sentiment."""
@@ -68,16 +68,16 @@ class BookAnalyzer:
     def _extract_keywords(self, text):
         """Extract important keywords."""
         self.rake.extract_keywords_from_text(text)
-        return self.rake.get_ranked_phrases()[:20]  # İlk 20
+        return self.rake.get_ranked_phrases()[:20]  # First 20
 
     def _extract_mood_words(self, doc):
         """Extract mood/atmosphere words (emotional adjectives/adverbs)."""
         mood_words = []
         for token in doc:
             if token.pos_ in ['ADJ', 'ADV']:
-                # TextBlob ile sentiment kontrolü
+                # Sentiment check with TextBlob
                 blob = TextBlob(token.text)
-                if abs(blob.sentiment.polarity) > 0.1:  # Hafif duygusal
+                if abs(blob.sentiment.polarity) > 0.1:  # Slightly emotional
                     mood_words.append(token.text)
         from collections import Counter
         mood_counts = Counter(mood_words)

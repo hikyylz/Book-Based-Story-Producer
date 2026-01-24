@@ -1,9 +1,9 @@
 #!/bin/bash
 
-# Gereksinimleri yükle
+# Install requirements
 pip install -r requirements.txt
 
-# Spacy modelini indir
+# Download Spacy model
 python -m spacy download en_core_web_sm
 
-echo "Kurulum tamamlandı."
+echo "Setup completed."

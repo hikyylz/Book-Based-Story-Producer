@@ -10,7 +10,7 @@ producer = StoryProducer()
 test_text = """[Long story content here]"""  # Removed, using file instead
 
 # Write test text to file (already done)
-# with open('test_story.txt', 'w', encoding='utf-8') as f:
+# with open('test_book.txt', 'w', encoding='utf-8') as f:
 #     f.write(test_text)
 
 # Analyze the book

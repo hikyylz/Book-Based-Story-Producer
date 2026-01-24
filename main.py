@@ -5,14 +5,17 @@ from generator import StoryGenerator
 from api_key import GEMINI_API_KEY
 
 class StoryProducer:
+    """Main class for book-based story production."""
+
     def __init__(self, api_key=None):
+        """Initialize with API key and components."""
         self.api_key = api_key or GEMINI_API_KEY
         self.analyzer = BookAnalyzer()
         self.generator = StoryGenerator(self.api_key)
         self.analysis_data = {}
 
     def analyze_book(self, file_path):
-        """Analyze the book and extract data."""
+        """Analyze book file and extract features."""
         text = self._load_text(file_path)
         self.analysis_data = self.analyzer.analyze(text)
         # Save data
@@ -21,7 +24,7 @@ class StoryProducer:
         print("Analysis completed and saved.")
 
     def generate_story(self, output_file='generated_story.txt'):
-        """Generate a story from analysis data."""
+        """Generate new story from analysis data."""
         if not self.analysis_data:
             raise ValueError("Analyze the book first.")
         story = self.generator.generate(self.analysis_data)
@@ -46,6 +49,6 @@ class StoryProducer:
 
 if __name__ == "__main__":
     producer = StoryProducer()
-    # Örnek kullanım
+    # Example usage
     # producer.analyze_book('book.pdf')
     # producer.generate_story()

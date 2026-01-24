@@ -1,18 +1,22 @@
-import google.generativeai as genai
+import google.genai as genai
 
 class StoryGenerator:
+    """Class for generating stories using Gemini AI."""
+
     def __init__(self, api_key):
-        self.api_key = api_key
-        genai.configure(api_key=self.api_key)
-        self.model = genai.GenerativeModel('gemini-pro')
+        """Initialize with API key and client."""
+        self.client = genai.Client(api_key=api_key)
 
     def generate(self, analysis_data):
         """Generate a story from analysis data."""
         prompt = self._build_prompt(analysis_data)
 
-        response = self.model.generate_content(prompt)
+        response = self.client.models.generate_content(
+            model='gemini-1.5-flash',
+            contents=prompt
+        )
 
-        return response.text.strip()
+        return response.text
 
     def _build_prompt(self, data):
         """Build prompt from data."""
