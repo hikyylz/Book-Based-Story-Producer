@@ -34,10 +34,10 @@ Bu proje, bir romanın PDF veya TXT dosyasını girdi olarak alır, metni analiz
 
 ## Kullanım
 
-1. OpenAI API anahtarınızı ortam değişkenine ayarlayın:
+1. Gemini API anahtarınızı `api_key.py` dosyasında tanımlayın:
 
-   ```
-   export OPENAI_API_KEY='your-openai-api-key'
+   ```python
+   GEMINI_API_KEY = "your-gemini-api-key"
    ```
 
 2. Python scriptini çalıştırın:
@@ -61,7 +61,7 @@ Bu proje, bir romanın PDF veya TXT dosyasını girdi olarak alır, metni analiz
   - Keyword extraction (RAKE).
   - Mood/Atmosfer kelimeleri (ADJ/ADV + sentiment).
   - Edebi özellikler (sık kullanılan sıfatlar, fiiller).
-- **Hikaye Üretimi:** OpenAI GPT ile analiz verilerinden özgün hikaye.
+- **Hikaye Üretimi:** Google Gemini ile analiz verilerinden özgün hikaye.
 
 ## Çıktı
 
@@ -72,4 +72,4 @@ Bu proje, bir romanın PDF veya TXT dosyasını girdi olarak alır, metni analiz
 
 - Şu anda İngilizce metinler için optimize edilmiş.
 - Büyük dosyalar için performans iyileştirmesi gerekebilir.
-- API kullanımı için OpenAI kredisi gerekli.
+- API kullanımı için Google Gemini API kredisi gerekli.

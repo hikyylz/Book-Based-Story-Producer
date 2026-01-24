@@ -1,6 +1,6 @@
 pdfplumber
 spacy
 textblob
-openai
+google-generativeai
 rake-nltk
 nltk

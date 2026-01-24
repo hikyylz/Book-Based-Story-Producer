@@ -2,8 +2,7 @@
 
 from main import StoryProducer
 
-# OpenAI API anahtarınızı ortam değişkenine ayarlayın
-# export OPENAI_API_KEY='your-api-key'
+# Gemini API anahtarınızı api_key.py dosyasında tanımlayın
 
 producer = StoryProducer()
 

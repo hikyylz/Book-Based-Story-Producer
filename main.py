@@ -2,10 +2,11 @@ import os
 import json
 from analyzer import BookAnalyzer
 from generator import StoryGenerator
+from api_key import GEMINI_API_KEY
 
 class StoryProducer:
     def __init__(self, api_key=None):
-        self.api_key = api_key or os.getenv('OPENAI_API_KEY')
+        self.api_key = api_key or GEMINI_API_KEY
         self.analyzer = BookAnalyzer()
         self.generator = StoryGenerator(self.api_key)
         self.analysis_data = {}
