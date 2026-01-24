@@ -12,25 +12,25 @@ class StoryProducer:
         self.analysis_data = {}
 
     def analyze_book(self, file_path):
-        """Kitabı analiz et ve verileri çıkar."""
+        """Analyze the book and extract data."""
         text = self._load_text(file_path)
         self.analysis_data = self.analyzer.analyze(text)
-        # Verileri kaydet
+        # Save data
         with open('analysis_data.json', 'w', encoding='utf-8') as f:
             json.dump(self.analysis_data, f, ensure_ascii=False, indent=2)
-        print("Analiz tamamlandı ve kaydedildi.")
+        print("Analysis completed and saved.")
 
     def generate_story(self, output_file='generated_story.txt'):
-        """Analiz verilerinden hikaye üret."""
+        """Generate a story from analysis data."""
         if not self.analysis_data:
-            raise ValueError("Önce kitabı analiz edin.")
+            raise ValueError("Analyze the book first.")
         story = self.generator.generate(self.analysis_data)
         with open(output_file, 'w', encoding='utf-8') as f:
             f.write(story)
-        print(f"Hikaye üretildi: {output_file}")
+        print(f"Story generated: {output_file}")
 
     def _load_text(self, file_path):
-        """PDF veya TXT dosyasını yükle."""
+        """Load text from PDF or TXT file."""
         if file_path.endswith('.pdf'):
             import pdfplumber
             with pdfplumber.open(file_path) as pdf:
@@ -42,7 +42,7 @@ class StoryProducer:
             with open(file_path, 'r', encoding='utf-8') as f:
                 return f.read()
         else:
-            raise ValueError("Desteklenmeyen dosya formatı. PDF veya TXT kullanın.")
+            raise ValueError("Unsupported file format. Use PDF or TXT.")
 
 if __name__ == "__main__":
     producer = StoryProducer()

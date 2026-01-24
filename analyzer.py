@@ -20,22 +20,22 @@ class BookAnalyzer:
         self.rake = Rake()
 
     def analyze(self, text):
-        """Metni analiz et ve kategorilere göre verileri çıkar."""
+        """Analyze text and extract data into categories."""
         doc = self.nlp(text)
 
-        # Kişi isimleri (NER)
+        # Characters (NER)
         characters = self._extract_characters(doc)
 
-        # Duygular
+        # Sentiments
         sentiments = self._analyze_sentiment(text)
 
-        # Önemli kelimeler
+        # Keywords
         keywords = self._extract_keywords(text)
 
-        # Atmosfer/mood kelimeleri (duygusal kelimeler)
+        # Mood/Atmosphere words (duygusal kelimeler)
         mood_words = self._extract_mood_words(doc)
 
-        # Edebi özellikler (basit olarak sık kullanılan sıfatlar, vb.)
+        # Literary features (common adjectives, verbs)
         literary_features = self._extract_literary_features(doc)
 
         return {
@@ -47,7 +47,7 @@ class BookAnalyzer:
         }
 
     def _extract_characters(self, doc):
-        """Kişi isimlerini çıkar."""
+        """Extract character names."""
         characters = []
         for ent in doc.ents:
             if ent.label_ == 'PERSON':
@@ -58,7 +58,7 @@ class BookAnalyzer:
         return dict(char_counts.most_common(10))  # En sık 10 karakter
 
     def _analyze_sentiment(self, text):
-        """Genel duygu analizi."""
+        """Analyze overall sentiment."""
         blob = TextBlob(text)
         return {
             'polarity': blob.sentiment.polarity,  # -1 to 1
@@ -66,12 +66,12 @@ class BookAnalyzer:
         }
 
     def _extract_keywords(self, text):
-        """Önemli kelimeleri çıkar."""
+        """Extract important keywords."""
         self.rake.extract_keywords_from_text(text)
         return self.rake.get_ranked_phrases()[:20]  # İlk 20
 
     def _extract_mood_words(self, doc):
-        """Atmosfer/mood kelimelerini çıkar (duygusal sıfatlar, vb.)."""
+        """Extract mood/atmosphere words (emotional adjectives/adverbs)."""
         mood_words = []
         for token in doc:
             if token.pos_ in ['ADJ', 'ADV']:
@@ -84,7 +84,7 @@ class BookAnalyzer:
         return dict(mood_counts.most_common(15))
 
     def _extract_literary_features(self, doc):
-        """Edebi özellikleri çıkar (örneğin, sık kullanılan sıfatlar, fiiller)."""
+        """Extract literary features (common adjectives, verbs)."""
         adjectives = []
         verbs = []
         for token in doc:

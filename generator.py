@@ -7,7 +7,7 @@ class StoryGenerator:
         self.model = genai.GenerativeModel('gemini-pro')
 
     def generate(self, analysis_data):
-        """Analiz verilerinden hikaye üret."""
+        """Generate a story from analysis data."""
         prompt = self._build_prompt(analysis_data)
 
         response = self.model.generate_content(prompt)
@@ -15,7 +15,7 @@ class StoryGenerator:
         return response.text.strip()
 
     def _build_prompt(self, data):
-        """Verilerden prompt oluştur."""
+        """Build prompt from data."""
         prompt = "Based on the following literary features, write an original short story that captures a similar literary identity:\n\n"
 
         if 'characters' in data:

@@ -4,72 +4,72 @@ If a person wants to read a short story regarding to a literary book, They are a
 
 # Book-Based Story Producer
 
-Bu proje, bir romanın PDF veya TXT dosyasını girdi olarak alır, metni analiz eder ve romanın edebi kimliğini (kişi isimleri, duygular, atmosfer, önemli kelimeler) çıkarır. Daha sonra bu verilerle AI kullanarak yeni bir hikaye üretir.
+This project takes a novel in PDF or TXT format as input, analyzes the text, and extracts the literary identity of the book (character names, emotions, atmosphere, important words). It then uses AI to generate a new story that matches the literary style, without giving the original book to the AI—only the extracted data.
 
-## Özellikler
+## Features
 
-- PDF/TXT dosya okuma
-- Metin analizi (NER, sentiment, keyword extraction)
-- Veri kategorizasyonu
-- AI tabanlı hikaye üretimi
+- PDF/TXT file reading
+- Text analysis (NER, sentiment, keyword extraction)
+- Data categorization
+- AI-based story generation
 
-## Kurulum
+## Setup
 
-1. Gereksinimleri yükleyin:
+1. Install requirements:
 
    ```
    pip install -r requirements.txt
    ```
 
-2. Spacy modelini indirin:
+2. Download Spacy model:
 
    ```
    python -m spacy download en_core_web_sm
    ```
 
-3. NLTK verilerini indirin:
+3. Download NLTK data:
    ```
    python -c "import nltk; nltk.download('punkt_tab')"
    ```
 
-## Kullanım
+## Usage
 
-1. Gemini API anahtarınızı `api_key.py` dosyasında tanımlayın:
+1. Define your Gemini API key in `api_key.py`:
 
    ```python
    GEMINI_API_KEY = "your-gemini-api-key"
    ```
 
-2. Python scriptini çalıştırın:
+2. Run the Python script:
 
    ```python
    from main import StoryProducer
 
    producer = StoryProducer()
-   producer.analyze_book('your_book.pdf')  # veya .txt
+   producer.analyze_book('your_book.pdf')  # or .txt
    producer.generate_story('output_story.txt')
    ```
 
-3. Alternatif olarak example.py'yi düzenleyip çalıştırın.
+3. Alternatively, edit and run example.py.
 
-## Özellikler
+## Features
 
-- **PDF/TXT Okuma:** pdfplumber ile PDF, standart okuma ile TXT.
-- **Metin Analizi:**
-  - NER ile kişi isimleri çıkarımı (spaCy).
-  - Sentiment analizi (TextBlob).
+- **PDF/TXT Reading:** pdfplumber for PDF, standard reading for TXT.
+- **Text Analysis:**
+  - NER for character names (spaCy).
+  - Sentiment analysis (TextBlob).
   - Keyword extraction (RAKE).
-  - Mood/Atmosfer kelimeleri (ADJ/ADV + sentiment).
-  - Edebi özellikler (sık kullanılan sıfatlar, fiiller).
-- **Hikaye Üretimi:** Google Gemini ile analiz verilerinden özgün hikaye.
+  - Mood/Atmosphere words (ADJ/ADV with sentiment).
+  - Literary features (common adjectives, verbs).
+- **Story Generation:** Google Gemini generates original stories from analysis data.
 
-## Çıktı
+## Output
 
-- `analysis_data.json`: Analiz verileri.
-- `generated_story.txt`: Üretilen hikaye.
+- `analysis_data.json`: Analysis data.
+- `generated_story.txt`: Generated story.
 
-## Notlar
+## Notes
 
-- Şu anda İngilizce metinler için optimize edilmiş.
-- Büyük dosyalar için performans iyileştirmesi gerekebilir.
-- API kullanımı için Google Gemini API kredisi gerekli.
+- Currently optimized for English texts.
+- May need performance improvements for large files.
+- Requires Google Gemini API credits.
