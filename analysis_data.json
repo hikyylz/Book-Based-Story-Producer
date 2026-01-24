@@ -1,0 +1,62 @@
+{
+  "characters": {
+    "Thomas": 2,
+    "Eliza": 1
+  },
+  "sentiments": {
+    "polarity": 0.11071428571428574,
+    "subjectivity": 0.4916666666666667
+  },
+  "keywords": [
+    "whose gentle nature contrasted",
+    "autumn leaves whispered secrets",
+    "kind stranger named thomas",
+    "eyes held stories untold",
+    "young woman named eliza",
+    "thomas sharing stories",
+    "one foggy morning",
+    "ancient books filled",
+    "hidden chamber revealed",
+    "treasure promised wealth",
+    "old letter hidden",
+    "ancient oak tree",
+    "hidden treasure",
+    "letter spoke",
+    "true treasure",
+    "would change",
+    "sun struggled",
+    "story ended",
+    "stormy weather",
+    "stood sentinel"
+  ],
+  "mood_words": {
+    "gentle": 1,
+    "true": 1
+  },
+  "literary_features": {
+    "common_adjectives": {
+      "ancient": 2,
+      "quiet": 1,
+      "young": 1,
+      "mysterious": 1,
+      "untold": 1,
+      "foggy": 1,
+      "old": 1,
+      "unaware": 1,
+      "gentle": 1,
+      "stormy": 1
+    },
+    "common_verbs": {
+      "hidden": 3,
+      "named": 2,
+      "leaves": 1,
+      "whispered": 1,
+      "lived": 1,
+      "known": 1,
+      "held": 1,
+      "struggled": 1,
+      "pierce": 1,
+      "discovered": 1
+    }
+  }
+}

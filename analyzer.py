@@ -1,0 +1,99 @@
+import spacy
+from textblob import TextBlob
+from rake_nltk import Rake
+import nltk
+
+# NLTK verilerini indir (gerekirse)
+try:
+    nltk.data.find('tokenizers/punkt')
+except LookupError:
+    nltk.download('punkt')
+
+try:
+    nltk.data.find('corpora/stopwords')
+except LookupError:
+    nltk.download('stopwords')
+
+class BookAnalyzer:
+    def __init__(self):
+        self.nlp = spacy.load('en_core_web_sm')
+        self.rake = Rake()
+
+    def analyze(self, text):
+        """Metni analiz et ve kategorilere göre verileri çıkar."""
+        doc = self.nlp(text)
+
+        # Kişi isimleri (NER)
+        characters = self._extract_characters(doc)
+
+        # Duygular
+        sentiments = self._analyze_sentiment(text)
+
+        # Önemli kelimeler
+        keywords = self._extract_keywords(text)
+
+        # Atmosfer/mood kelimeleri (duygusal kelimeler)
+        mood_words = self._extract_mood_words(doc)
+
+        # Edebi özellikler (basit olarak sık kullanılan sıfatlar, vb.)
+        literary_features = self._extract_literary_features(doc)
+
+        return {
+            'characters': characters,
+            'sentiments': sentiments,
+            'keywords': keywords,
+            'mood_words': mood_words,
+            'literary_features': literary_features
+        }
+
+    def _extract_characters(self, doc):
+        """Kişi isimlerini çıkar."""
+        characters = []
+        for ent in doc.ents:
+            if ent.label_ == 'PERSON':
+                characters.append(ent.text)
+        # Tekrarları kaldır ve say
+        from collections import Counter
+        char_counts = Counter(characters)
+        return dict(char_counts.most_common(10))  # En sık 10 karakter
+
+    def _analyze_sentiment(self, text):
+        """Genel duygu analizi."""
+        blob = TextBlob(text)
+        return {
+            'polarity': blob.sentiment.polarity,  # -1 to 1
+            'subjectivity': blob.sentiment.subjectivity  # 0 to 1
+        }
+
+    def _extract_keywords(self, text):
+        """Önemli kelimeleri çıkar."""
+        self.rake.extract_keywords_from_text(text)
+        return self.rake.get_ranked_phrases()[:20]  # İlk 20
+
+    def _extract_mood_words(self, doc):
+        """Atmosfer/mood kelimelerini çıkar (duygusal sıfatlar, vb.)."""
+        mood_words = []
+        for token in doc:
+            if token.pos_ in ['ADJ', 'ADV']:
+                # TextBlob ile sentiment kontrolü
+                blob = TextBlob(token.text)
+                if abs(blob.sentiment.polarity) > 0.1:  # Hafif duygusal
+                    mood_words.append(token.text)
+        from collections import Counter
+        mood_counts = Counter(mood_words)
+        return dict(mood_counts.most_common(15))
+
+    def _extract_literary_features(self, doc):
+        """Edebi özellikleri çıkar (örneğin, sık kullanılan sıfatlar, fiiller)."""
+        adjectives = []
+        verbs = []
+        for token in doc:
+            if token.pos_ == 'ADJ':
+                adjectives.append(token.text)
+            elif token.pos_ == 'VERB':
+                verbs.append(token.text)
+        from collections import Counter
+        return {
+            'common_adjectives': dict(Counter(adjectives).most_common(10)),
+            'common_verbs': dict(Counter(verbs).most_common(10))
+        }

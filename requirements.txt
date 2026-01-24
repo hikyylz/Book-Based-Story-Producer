@@ -1,0 +1,6 @@
+pdfplumber
+spacy
+textblob
+openai
+rake-nltk
+nltk
