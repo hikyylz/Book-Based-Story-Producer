@@ -12,7 +12,7 @@ class StoryGenerator:
         prompt = self._build_prompt(analysis_data)
 
         response = self.client.models.generate_content(
-            model='gemini-1.5-flash',
+            model='gemini-2.5-flash',
             contents=prompt
         )
 
@@ -40,6 +40,6 @@ class StoryGenerator:
             prompt += f"Common Adjectives: {', '.join(feats['common_adjectives'].keys())}\n"
             prompt += f"Common Verbs: {', '.join(feats['common_verbs'].keys())}\n"
 
-        prompt += "\nThe story should be about 500 words and reflect the above elements in an original narrative."
+        prompt += "\nThe story should be around 500 words and reflect the above elements in an original narrative."
 
         return prompt

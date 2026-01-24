@@ -24,6 +24,6 @@ print("Analysis Data:")
 print(json.dumps(data, indent=2, ensure_ascii=False))
 
 # Generate story (if API key is set)
-# producer.generate_story('output_story.txt')
+producer.generate_story('output_story.txt')
 
 print("Test completed!")
