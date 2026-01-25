@@ -14,7 +14,7 @@ test_text = """[Long story content here]"""  # Removed, using file instead
 #     f.write(test_text)
 
 # Analyze the book
-producer.analyze_book('test_book.txt')
+producer.analyze_book('my_book_1.txt')
 
 # Show analysis data
 import json
@@ -24,6 +24,6 @@ print("Analysis Data:")
 print(json.dumps(data, indent=2, ensure_ascii=False))
 
 # Generate story (if API key is set)
-producer.generate_story('output_story.txt')
+producer.generate_story('my_generated_story.txt')
 
 print("Test completed!")

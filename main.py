@@ -33,19 +33,18 @@ class StoryProducer:
         print(f"Story generated: {output_file}")
 
     def _load_text(self, file_path):
-        """Load text from PDF or TXT file."""
-        if file_path.endswith('.pdf'):
-            import pdfplumber
-            with pdfplumber.open(file_path) as pdf:
-                text = ''
-                for page in pdf.pages:
-                    text += page.extract_text() + '\n'
-            return text
-        elif file_path.endswith('.txt'):
-            with open(file_path, 'r', encoding='utf-8') as f:
-                return f.read()
+        """Load text from TXT file."""
+        if not os.path.exists(file_path):
+            raise FileNotFoundError(f"File not found: {file_path}")
+        
+        if file_path.lower().endswith('.txt'):
+            try:
+                with open(file_path, 'r', encoding='utf-8') as f:
+                    return f.read()
+            except Exception as e:
+                raise ValueError(f"Error reading TXT: {e}")
         else:
-            raise ValueError("Unsupported file format. Use PDF or TXT.")
+            raise ValueError("Unsupported file format. Use TXT.")
 
 if __name__ == "__main__":
     producer = StoryProducer()
