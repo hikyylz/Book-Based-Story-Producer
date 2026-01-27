@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book-Based Story Producer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&family=Playfair+Display:ital,wght@0,600;1,600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Literary Essence Reimagined</h1>
+            <p class="subtitle">Select a book to distill its soul into a new short story.</p>
+        </header>
+
+        <main>
+            <section class="book-selection">
+                <h2>Library</h2>
+                <div class="book-grid">
+                    {% for book in books %}
+                    <div class="book-card" onclick="selectBook('{{ book }}')">
+                        <div class="book-icon">📖</div>
+                        <div class="book-title">{{ book }}</div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <input type="hidden" id="selectedBook" value="">
+                <button id="generateBtn" onclick="generateStory()" disabled>Generate Story</button>
+            </section>
+
+            <section id="resultSection" class="result-section hidden">
+                <div class="result-header">
+                    <h2>Generated Story</h2>
+                    <button onclick="saveStory()" class="secondary-btn">Download .txt</button>
+                </div>
+                <div id="loading" class="loading hidden">
+                    <div class="spinner"></div>
+                    <p>Consulting with the AI Muse...</p>
+                </div>
+                <div id="storyContent" class="story-content"></div>
+            </section>
+        </main>
+    </div>
+    <script src="/static/js/script.js"></script>
+</body>
+</html>
