@@ -3,6 +3,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi import Request
 from pydantic import BaseModel
+from typing import Optional
 import os
 import sys
 
@@ -23,13 +24,15 @@ templates = Jinja2Templates(directory="templates")
 
 class StoryRequest(BaseModel):
     book_filename: str
+    length: Optional[str] = "medium"
+    style: Optional[str] = "same"
 
 class StoryProducerService:
     def __init__(self):
         self.analyzer = BookAnalyzer()
         self.generator = StoryGenerator(GEMINI_API_KEY)
 
-    def produce(self, file_path: str) -> str:
+    def produce(self, file_path: str, length: str = "medium", style: str = "same") -> dict:
         # 1. Read file
         try:
             with open(file_path, 'r', encoding='utf-8') as f:
@@ -40,9 +43,13 @@ class StoryProducerService:
         # 2. Analyze
         analysis_data = self.analyzer.analyze(text)
         
-        # 3. Generate
-        story = self.generator.generate(analysis_data)
-        return story
+        # 3. Generate with options
+        story = self.generator.generate(analysis_data, length=length, style=style)
+        
+        return {
+            "story": story,
+            "analysis": analysis_data
+        }
 
 # Service instance
 print("Initializing Story Producer Service (Loading AI 🧠)...")
@@ -63,7 +70,11 @@ async def read_root(request: Request):
 async def produce_story(request: StoryRequest):
     file_path = os.path.join("static/books", request.book_filename)
     try:
-        story = service.produce(file_path)
-        return {"story": story}
+        result = service.produce(
+            file_path, 
+            length=request.length, 
+            style=request.style
+        )
+        return result
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

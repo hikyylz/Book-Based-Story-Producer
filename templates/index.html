@@ -6,44 +6,260 @@
     <title>Book-Based Story Producer</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&family=Playfair+Display:ital,wght@0,600;1,600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/static/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css?v=2">
 </head>
 <body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <span class="logo-icon">📚</span>
+                <span class="logo-text">Story Producer</span>
+            </div>
+            <div class="nav-links">
+                <a href="/" class="nav-link active">Ana Sayfa</a>
+                <a href="#library" class="nav-link">Kütüphane</a>
+                <a href="#about" class="nav-link">Hakkında</a>
+            </div>
+        </div>
+    </nav>
+
     <div class="container">
-        <header>
-            <h1>Literary Essence Reimagined</h1>
-            <p class="subtitle">Select a book to distill its soul into a new short story.</p>
+        <!-- Hero Section -->
+        <header class="hero">
+            <div class="hero-content">
+                <h1 class="hero-title">Literary Essence Reimagined</h1>
+                <p class="hero-subtitle">Klasik eserlerin ruhunu yapay zeka ile yeniden yorumlayın. 
+                   Bir kitap seçin, karakterleri ve atmosferi analiz edelim, size özgün bir hikaye oluşturalım.</p>
+                <div class="hero-stats">
+                    <div class="stat-item">
+                        <span class="stat-number">{{ books|length }}</span>
+                        <span class="stat-label">Kitap</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">∞</span>
+                        <span class="stat-label">Hikaye</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">AI</span>
+                        <span class="stat-label">Destekli</span>
+                    </div>
+                </div>
+            </div>
         </header>
 
         <main>
-            <section class="book-selection">
-                <h2>Library</h2>
+            <!-- Book Selection Section -->
+            <section id="library" class="book-selection">
+                <div class="section-header">
+                    <h2>📚 Kütüphane</h2>
+                    <p class="section-desc">Hikaye oluşturmak için bir klasik eser seçin</p>
+                </div>
+                
                 <div class="book-grid">
                     {% for book in books %}
-                    <div class="book-card" onclick="selectBook('{{ book }}')">
-                        <div class="book-icon">📖</div>
-                        <div class="book-title">{{ book }}</div>
+                    <div class="book-card" onclick="selectBook('{{ book }}')" data-book="{{ book }}">
+                        <div class="book-cover">
+                            <div class="book-icon">📖</div>
+                            <div class="book-spine"></div>
+                        </div>
+                        <div class="book-info">
+                            <div class="book-title">{{ book.replace('.txt', '') }}</div>
+                            <div class="book-meta">Klasik Eser</div>
+                        </div>
+                        <div class="book-select-indicator">
+                            <span class="checkmark">✓</span>
+                        </div>
                     </div>
                     {% endfor %}
                 </div>
+                
                 <input type="hidden" id="selectedBook" value="">
-                <button id="generateBtn" onclick="generateStory()" disabled>Generate Story</button>
+                
+                <!-- Story Options -->
+                <div id="storyOptions" class="story-options hidden">
+                    <h3>⚙️ Hikaye Ayarları</h3>
+                    <div class="options-grid">
+                        <div class="option-group">
+                            <label for="storyLength">Hikaye Uzunluğu</label>
+                            <select id="storyLength">
+                                <option value="short">Kısa (~500 kelime)</option>
+                                <option value="medium" selected>Orta (~1000 kelime)</option>
+                                <option value="long">Uzun (~2000 kelime)</option>
+                            </select>
+                        </div>
+                        <div class="option-group">
+                            <label for="storyStyle">Anlatım Tarzı</label>
+                            <select id="storyStyle">
+                                <option value="same">Orijinal tarzda</option>
+                                <option value="modern">Modern yorumlama</option>
+                                <option value="dramatic">Dramatik</option>
+                                <option value="poetic">Şiirsel</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <button id="generateBtn" onclick="generateStory()" disabled>
+                    <span class="btn-icon">✨</span>
+                    <span class="btn-text">Hikaye Oluştur</span>
+                </button>
             </section>
 
+            <!-- Loading Section -->
+            <section id="loadingSection" class="loading-section hidden">
+                <div class="loading-card">
+                    <div class="loading-animation">
+                        <div class="book-loader">
+                            <div class="book-page"></div>
+                            <div class="book-page"></div>
+                            <div class="book-page"></div>
+                        </div>
+                    </div>
+                    <h3 class="loading-title">Kitap Analiz Ediliyor...</h3>
+                    <p class="loading-subtitle" id="loadingText">Karakterler ve atmosfer çıkarılıyor</p>
+                    
+                    <!-- Progress Steps -->
+                    <div class="progress-steps">
+                        <div class="step" id="step1">
+                            <div class="step-indicator active">
+                                <span class="step-icon">📖</span>
+                            </div>
+                            <span class="step-text">Metin Temizleniyor</span>
+                        </div>
+                        <div class="step-line"></div>
+                        <div class="step" id="step2">
+                            <div class="step-indicator">
+                                <span class="step-icon">🔍</span>
+                            </div>
+                            <span class="step-text">Analiz Ediliyor</span>
+                        </div>
+                        <div class="step-line"></div>
+                        <div class="step" id="step3">
+                            <div class="step-indicator">
+                                <span class="step-icon">✍️</span>
+                            </div>
+                            <span class="step-text">Hikaye Yazılıyor</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Analysis Section -->
+            <section id="analysisSection" class="analysis-section hidden">
+                <div class="section-header">
+                    <h2>📊 Analiz Sonuçları</h2>
+                    <p class="section-desc">Kitaptan çıkarılan veriler</p>
+                </div>
+                
+                <div class="analysis-grid">
+                    <!-- Characters -->
+                    <div class="analysis-card characters-card">
+                        <div class="card-header">
+                            <span class="card-icon">👥</span>
+                            <h4>Karakterler</h4>
+                        </div>
+                        <div class="card-content" id="charactersContent">
+                            <!-- Will be filled by JS -->
+                        </div>
+                    </div>
+                    
+                    <!-- Mood -->
+                    <div class="analysis-card mood-card">
+                        <div class="card-header">
+                            <span class="card-icon">🎭</span>
+                            <h4>Atmosfer</h4>
+                        </div>
+                        <div class="card-content" id="moodContent">
+                            <!-- Will be filled by JS -->
+                        </div>
+                    </div>
+                    
+                    <!-- Sentiment -->
+                    <div class="analysis-card sentiment-card">
+                        <div class="card-header">
+                            <span class="card-icon">💭</span>
+                            <h4>Duygu Analizi</h4>
+                        </div>
+                        <div class="card-content" id="sentimentContent">
+                            <!-- Will be filled by JS -->
+                        </div>
+                    </div>
+                    
+                    <!-- Keywords -->
+                    <div class="analysis-card keywords-card">
+                        <div class="card-header">
+                            <span class="card-icon">🔑</span>
+                            <h4>Anahtar Kelimeler</h4>
+                        </div>
+                        <div class="card-content" id="keywordsContent">
+                            <!-- Will be filled by JS -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Result Section -->
             <section id="resultSection" class="result-section hidden">
-                <div class="result-header">
-                    <h2>Generated Story</h2>
-                    <button onclick="saveStory()" class="secondary-btn">Download .txt</button>
+                <div class="result-card">
+                    <div class="result-header">
+                        <div class="result-title">
+                            <span class="result-icon">📖</span>
+                            <h2>Üretilen Hikaye</h2>
+                        </div>
+                        <div class="result-actions">
+                            <button onclick="copyStory()" class="action-btn copy-btn" title="Kopyala">
+                                <span>📋</span> Kopyala
+                            </button>
+                            <button onclick="saveStory()" class="action-btn download-btn" title="İndir">
+                                <span>⬇️</span> İndir
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div id="storyContent" class="story-content"></div>
+                    
+                    <div class="result-footer">
+                        <button onclick="regenerateStory()" class="regenerate-btn">
+                            <span>🔄</span> Farklı Versiyon Oluştur
+                        </button>
+                        <button onclick="newStory()" class="new-story-btn">
+                            <span>📚</span> Yeni Kitap Seç
+                        </button>
+                    </div>
                 </div>
-                <div id="loading" class="loading hidden">
-                    <div class="spinner"></div>
-                    <p>Consulting with the AI Muse...</p>
-                </div>
-                <div id="storyContent" class="story-content"></div>
             </section>
         </main>
+
+        <!-- Footer -->
+        <footer id="about" class="footer">
+            <div class="footer-content">
+                <div class="footer-info">
+                    <h3>📚 Book-Based Story Producer</h3>
+                    <p>Klasik edebiyat eserlerinden yapay zeka destekli hikaye üretimi.</p>
+                </div>
+                <div class="footer-tech">
+                    <h4>Kullanılan Teknolojiler</h4>
+                    <div class="tech-badges">
+                        <span class="tech-badge">Python</span>
+                        <span class="tech-badge">FastAPI</span>
+                        <span class="tech-badge">spaCy</span>
+                        <span class="tech-badge">Gemini AI</span>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>© 2026 Book-Based Story Producer</p>
+            </div>
+        </footer>
     </div>
-    <script src="/static/js/script.js"></script>
+    
+    <!-- Toast Notification -->
+    <div id="toast" class="toast hidden">
+        <span id="toastMessage"></span>
+    </div>
+    
+    <script src="/static/js/script.js?v=2"></script>
 </body>
 </html>
