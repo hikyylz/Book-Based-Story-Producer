@@ -1,6 +1,0 @@
-pdfplumber
-spacy
-textblob
-google-genai
-rake-nltk
-nltk
