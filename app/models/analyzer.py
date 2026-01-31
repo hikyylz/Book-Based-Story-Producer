@@ -18,7 +18,12 @@ except LookupError:
 class BookAnalyzer:
     def __init__(self):
         self.nlp = spacy.load('en_core_web_sm')
+        # Büyük kitaplar için max_length limitini artır (varsayılan: 1,000,000)
+        self.nlp.max_length = 2_000_000
         self.rake = Rake()
+        
+        # Analiz için maksimum karakter limiti (çok büyük metinler kırpılır)
+        self.max_text_length = 500_000  # ~500KB, analiz için yeterli
         
         # Gutenberg temizleme pattern'leri
         self.gutenberg_start_markers = [
@@ -86,6 +91,12 @@ class BookAnalyzer:
         
         # Önce Gutenberg kirliliğini temizle
         cleaned_text = self._clean_gutenberg_text(text)
+        
+        # Çok büyük metinleri kırp (spaCy performansı için)
+        if len(cleaned_text) > self.max_text_length:
+            # Metnin başından ve sonundan örnekler al
+            half_limit = self.max_text_length // 2
+            cleaned_text = cleaned_text[:half_limit] + "\n\n" + cleaned_text[-half_limit:]
         
         doc = self.nlp(cleaned_text)
 
