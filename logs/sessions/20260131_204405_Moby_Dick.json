@@ -1,0 +1,75 @@
+{
+  "session_id": "20260131_204405",
+  "book_name": "Moby Dick.txt",
+  "settings": {
+    "length": "medium",
+    "style": "same"
+  },
+  "started_at": "2026-01-31T20:44:05.279632",
+  "steps": [
+    {
+      "name": "Dosya Okuma",
+      "timestamp": "2026-01-31T20:44:05.280221",
+      "details": {}
+    },
+    {
+      "name": "Metin Temizleme",
+      "timestamp": "2026-01-31T20:44:05.349295",
+      "details": {},
+      "duration_seconds": 0.069
+    },
+    {
+      "name": "Örnekleme",
+      "timestamp": "2026-01-31T20:44:06.304124",
+      "details": {},
+      "duration_seconds": 0.955
+    },
+    {
+      "name": "NLP Analizi",
+      "timestamp": "2026-01-31T20:44:06.355601",
+      "details": {},
+      "duration_seconds": 0.051
+    },
+    {
+      "name": "Analiz Tamamlandı",
+      "timestamp": "2026-01-31T20:44:11.859206",
+      "details": {},
+      "duration_seconds": 5.504
+    },
+    {
+      "name": "Hikaye Üretimi",
+      "timestamp": "2026-01-31T20:44:11.859338",
+      "details": {},
+      "duration_seconds": 0.0
+    },
+    {
+      "name": "Tamamlandı",
+      "timestamp": "2026-01-31T20:49:32.386400",
+      "details": {},
+      "duration_seconds": 320.527
+    }
+  ],
+  "metrics": {
+    "file_size_bytes": 1238244,
+    "text_hash": "3c67761e361b194ac8d0dbdc1a35bada",
+    "original_text_size": 1238244,
+    "cleaned_text_size": 1218133,
+    "removed_characters": 20111,
+    "removed_percent": 1.62,
+    "num_samples": 4,
+    "sample_size": 30000,
+    "total_analyzed_chars": 119566,
+    "analysis_results": {
+      "characters_found": 10,
+      "keywords_found": 20,
+      "mood_words_found": 15,
+      "sentiment_polarity": 0.14379804408062394,
+      "sentiment_subjectivity": 0.49286401246507633
+    },
+    "story_word_count": 1344
+  },
+  "errors": [],
+  "status": "success",
+  "total_duration_seconds": 327.106,
+  "ended_at": "2026-01-31T20:49:32.386513"
+}

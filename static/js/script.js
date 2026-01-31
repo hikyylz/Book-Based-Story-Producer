@@ -52,54 +52,66 @@ async function generateStory() {
     // Scroll to loading
     loadingSection.scrollIntoView({ behavior: 'smooth' });
 
-    // Update loading steps
-    updateLoadingStep(1);
+    // Reset all steps
+    resetLoadingSteps();
 
     try {
-        const response = await fetch('/produce-story', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ 
-                book_filename: bookName,
-                length: storyLength,
-                style: storyStyle
-            })
-        });
-
-        if (!response.ok) {
-            throw new Error('Sunucu hatası oluştu');
-        }
-
-        const data = await response.json();
-
-        // Update steps
-        updateLoadingStep(2);
-        await sleep(500);
+        // SSE ile gerçek zamanlı ilerleme
+        const url = `/produce-story-stream?book_filename=${encodeURIComponent(bookName)}&length=${storyLength}&style=${storyStyle}`;
+        const eventSource = new EventSource(url);
         
-        // Show analysis if available
-        if (data.analysis) {
-            currentAnalysis = data.analysis;
-            displayAnalysis(data.analysis);
-            analysisSection.classList.remove('hidden');
-        }
+        let finalData = null;
         
-        updateLoadingStep(3);
-        await sleep(500);
-
-        // Hide loading, show result
-        loadingSection.classList.add('hidden');
+        eventSource.onmessage = function(event) {
+            const data = JSON.parse(event.data);
+            
+            if (data.error) {
+                eventSource.close();
+                throw new Error(data.error);
+            }
+            
+            // Update progress UI
+            updateProgressFromServer(data);
+            
+            // Eğer analiz verisi geldiyse göster
+            if (data.analysis && !currentAnalysis) {
+                currentAnalysis = data.analysis;
+                displayAnalysis(data.analysis);
+                analysisSection.classList.remove('hidden');
+            }
+            
+            // Final sonuç
+            if (data.step === 7 && data.story) {
+                finalData = data;
+                eventSource.close();
+                
+                // Hide loading, show result
+                loadingSection.classList.add('hidden');
+                
+                // Display story
+                document.getElementById('storyContent').textContent = data.story;
+                resultSection.classList.remove('hidden');
+                
+                // Scroll to result
+                resultSection.scrollIntoView({ behavior: 'smooth' });
+                
+                // Re-enable book selection
+                document.querySelector('.book-selection').style.opacity = '1';
+                document.querySelector('.book-selection').style.pointerEvents = 'auto';
+                
+                // Show success toast
+                showToast('Hikaye başarıyla oluşturuldu! ✨');
+            }
+        };
         
-        // Display story
-        document.getElementById('storyContent').textContent = data.story;
-        resultSection.classList.remove('hidden');
-        
-        // Scroll to result
-        resultSection.scrollIntoView({ behavior: 'smooth' });
-        
-        // Show success toast
-        showToast('Hikaye başarıyla oluşturuldu! ✨');
+        eventSource.onerror = function(error) {
+            eventSource.close();
+            console.error('SSE Error:', error);
+            loadingSection.classList.add('hidden');
+            document.querySelector('.book-selection').style.opacity = '1';
+            document.querySelector('.book-selection').style.pointerEvents = 'auto';
+            showToast('Bağlantı hatası oluştu', 'error');
+        };
 
     } catch (error) {
         console.error('Error:', error);
@@ -110,9 +122,38 @@ async function generateStory() {
     }
 }
 
-function updateLoadingStep(currentStep) {
+function resetLoadingSteps() {
     const steps = ['step1', 'step2', 'step3'];
-    const texts = ['Metin Temizleniyor', 'Analiz Ediliyor', 'Hikaye Yazılıyor'];
+    steps.forEach((stepId, index) => {
+        const step = document.getElementById(stepId);
+        const indicator = step.querySelector('.step-indicator');
+        indicator.classList.remove('active', 'completed');
+        // Reset icons
+        const icons = ['📖', '🔍', '✍️'];
+        indicator.querySelector('.step-icon').textContent = icons[index];
+    });
+}
+
+function updateProgressFromServer(data) {
+    const stepMapping = {
+        1: { uiStep: 1, text: 'Dosya okunuyor...' },
+        2: { uiStep: 1, text: data.cached ? "Cache'den yükleniyor..." : 'Metin temizleniyor...' },
+        3: { uiStep: 1, text: 'Metin örnekleniyor...' },
+        4: { uiStep: 2, text: 'NLP analizi yapılıyor...' },
+        5: { uiStep: 2, text: 'Analiz tamamlandı!' },
+        6: { uiStep: 3, text: 'Hikaye yazılıyor...' },
+        7: { uiStep: 3, text: 'Tamamlandı!' }
+    };
+    
+    const mapping = stepMapping[data.step];
+    if (mapping) {
+        updateLoadingStep(mapping.uiStep, mapping.text);
+    }
+}
+
+function updateLoadingStep(currentStep, statusText = null) {
+    const steps = ['step1', 'step2', 'step3'];
+    const defaultTexts = ['Metin Temizleniyor', 'Analiz Ediliyor', 'Hikaye Yazılıyor'];
     
     steps.forEach((stepId, index) => {
         const step = document.getElementById(stepId);
@@ -130,7 +171,9 @@ function updateLoadingStep(currentStep) {
         }
     });
     
-    document.getElementById('loadingText').textContent = texts[currentStep - 1];
+    // Update status text
+    const text = statusText || defaultTexts[currentStep - 1];
+    document.getElementById('loadingText').textContent = text;
 }
 
 function displayAnalysis(analysis) {
