@@ -1,6 +1,6 @@
 """
-Story Producer Logger - Detaylı loglama sistemi
-Her hikaye üretimi için ayrı log dosyası + genel özet log
+Story Producer Logger - Detailed logging system
+Separate log file for each story generation + general summary log
 """
 
 import os
@@ -11,17 +11,17 @@ from typing import Optional, Dict, Any
 import time
 
 class StoryLogger:
-    """Hikaye üretim sürecini loglar."""
+    """Logs story generation process."""
     
     def __init__(self, logs_dir: str = "logs"):
         self.logs_dir = logs_dir
         self._ensure_logs_dir()
         
-        # Ana logger ayarları
+        # Main logger settings
         self.logger = logging.getLogger("StoryProducer")
         self.logger.setLevel(logging.DEBUG)
         
-        # Dosya handler - genel log (konsol yok - cloud için temiz)
+        # File handler - general log (no console - clean for cloud)
         file_handler = logging.FileHandler(
             os.path.join(self.logs_dir, "story_producer.log"),
             encoding='utf-8'
@@ -30,26 +30,26 @@ class StoryLogger:
         file_format = logging.Formatter('%(asctime)s | %(levelname)s | %(message)s')
         file_handler.setFormatter(file_format)
         
-        # Handler'ı ekle (eğer yoksa)
+        # Add handler (if not already present)
         if not self.logger.handlers:
             self.logger.addHandler(file_handler)
         
-        # Mevcut işlem için veriler
+        # Current process data
         self.current_session: Optional[Dict[str, Any]] = None
         self.step_times: Dict[str, float] = {}
     
     def _ensure_logs_dir(self):
-        """Log klasörünün var olduğundan emin ol."""
+        """Ensure log folder exists."""
         if not os.path.exists(self.logs_dir):
             os.makedirs(self.logs_dir)
         
-        # Sessions klasörü
+        # Sessions folder
         sessions_dir = os.path.join(self.logs_dir, "sessions")
         if not os.path.exists(sessions_dir):
             os.makedirs(sessions_dir)
     
     def start_session(self, book_name: str, length: str, style: str) -> str:
-        """Yeni bir hikaye üretim oturumu başlat."""
+        """Start a new story generation session."""
         session_id = datetime.now().strftime("%Y%m%d_%H%M%S")
         
         self.current_session = {
@@ -67,12 +67,12 @@ class StoryLogger:
         }
         
         self.step_times = {}
-        self.logger.info(f"🚀 Yeni oturum başladı: {session_id} | Kitap: {book_name}")
+        self.logger.info(f"🚀 New session started: {session_id} | Book: {book_name}")
         
         return session_id
     
     def log_step(self, step_name: str, details: Dict[str, Any] = None):
-        """Bir adımı logla."""
+        """Log a step."""
         if not self.current_session:
             return
         
@@ -84,7 +84,7 @@ class StoryLogger:
             "details": details or {}
         }
         
-        # Önceki adımdan geçen süre
+        # Duration from previous step
         if self.step_times:
             last_step = list(self.step_times.keys())[-1]
             duration = timestamp - self.step_times[last_step]
@@ -93,22 +93,22 @@ class StoryLogger:
         self.step_times[step_name] = timestamp
         self.current_session["steps"].append(step_data)
         
-        # Konsola log
+        # Console log
         details_str = ""
         if details:
             details_str = " | " + " | ".join([f"{k}: {v}" for k, v in details.items()])
         self.logger.info(f"📍 {step_name}{details_str}")
     
     def log_metric(self, name: str, value: Any):
-        """Metrik kaydet."""
+        """Save metric."""
         if not self.current_session:
             return
         
         self.current_session["metrics"][name] = value
-        self.logger.debug(f"📊 Metrik: {name} = {value}")
+        self.logger.debug(f"📊 Metric: {name} = {value}")
     
     def log_text_stats(self, original_size: int, cleaned_size: int):
-        """Metin istatistiklerini logla."""
+        """Log text statistics."""
         removed = original_size - cleaned_size
         removed_percent = (removed / original_size * 100) if original_size > 0 else 0
         
@@ -117,18 +117,18 @@ class StoryLogger:
         self.log_metric("removed_characters", removed)
         self.log_metric("removed_percent", round(removed_percent, 2))
         
-        self.logger.info(f"📝 Metin: {original_size:,} -> {cleaned_size:,} ({removed_percent:.1f}% kaldırıldı)")
+        self.logger.info(f"📝 Text: {original_size:,} -> {cleaned_size:,} ({removed_percent:.1f}% removed)")
     
     def log_sampling(self, num_samples: int, sample_size: int, total_analyzed: int):
-        """Örnekleme bilgilerini logla."""
+        """Log sampling information."""
         self.log_metric("num_samples", num_samples)
         self.log_metric("sample_size", sample_size)
         self.log_metric("total_analyzed_chars", total_analyzed)
         
-        self.logger.info(f"🔬 Örnekleme: {num_samples} örnek × {sample_size//1000}KB = {total_analyzed//1000}KB")
+        self.logger.info(f"🔬 Sampling: {num_samples} samples × {sample_size//1000}KB = {total_analyzed//1000}KB")
     
     def log_analysis_results(self, analysis: Dict[str, Any]):
-        """Analiz sonuçlarını logla."""
+        """Log analysis results."""
         if not analysis:
             return
         
@@ -142,17 +142,17 @@ class StoryLogger:
         
         self.log_metric("analysis_results", results)
         
-        self.logger.info(f"🎭 Analiz: {results['characters_found']} karakter, {results['keywords_found']} anahtar kelime")
+        self.logger.info(f"🎭 Analysis: {results['characters_found']} characters, {results['keywords_found']} keywords")
     
     def log_story_generated(self, story_length: int):
-        """Hikaye üretildiğini logla."""
+        """Log that story was generated."""
         word_count = len(story_length.split()) if isinstance(story_length, str) else story_length
         
         self.log_metric("story_word_count", word_count)
-        self.logger.info(f"✍️ Hikaye üretildi: ~{word_count} kelime")
+        self.logger.info(f"✍️ Story generated: ~{word_count} words")
     
     def log_error(self, error: str, step: str = None):
-        """Hata logla."""
+        """Log error."""
         if self.current_session:
             self.current_session["errors"].append({
                 "step": step,
@@ -160,19 +160,19 @@ class StoryLogger:
                 "timestamp": datetime.now().isoformat()
             })
         
-        self.logger.error(f"❌ Hata{f' ({step})' if step else ''}: {error}")
+        self.logger.error(f"❌ Error{f' ({step})' if step else ''}: {error}")
     
     def log_cache_hit(self, book_name: str):
-        """Cache hit logla."""
+        """Log cache hit."""
         self.log_metric("cache_hit", True)
         self.logger.info(f"⚡ Cache hit: {book_name}")
     
     def end_session(self, success: bool = True):
-        """Oturumu sonlandır ve kaydet."""
+        """End session and save."""
         if not self.current_session:
             return
         
-        # Toplam süre hesapla
+        # Calculate total duration
         if self.step_times:
             first_step = list(self.step_times.values())[0]
             last_step = list(self.step_times.values())[-1]
@@ -182,7 +182,7 @@ class StoryLogger:
         self.current_session["ended_at"] = datetime.now().isoformat()
         self.current_session["status"] = "success" if success else "failed"
         
-        # Session dosyasına kaydet
+        # Save to session file
         session_file = os.path.join(
             self.logs_dir, 
             "sessions", 
@@ -192,19 +192,19 @@ class StoryLogger:
         with open(session_file, 'w', encoding='utf-8') as f:
             json.dump(self.current_session, f, ensure_ascii=False, indent=2)
         
-        # Özet log
+        # Summary log
         duration = self.current_session.get("total_duration_seconds", 0)
         status_emoji = "✅" if success else "❌"
-        self.logger.info(f"{status_emoji} Oturum tamamlandı: {duration:.2f}s | Dosya: {session_file}")
+        self.logger.info(f"{status_emoji} Session completed: {duration:.2f}s | File: {session_file}")
         
-        # Özet dosyasına ekle
+        # Append to summary file
         self._append_to_summary()
         
         self.current_session = None
         self.step_times = {}
     
     def _append_to_summary(self):
-        """Özet log dosyasına ekle."""
+        """Append to summary log file."""
         if not self.current_session:
             return
         
