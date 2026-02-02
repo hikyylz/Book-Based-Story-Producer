@@ -1,0 +1,75 @@
+{
+  "session_id": "20260202_220612",
+  "book_name": "The Great Gatsby.txt",
+  "settings": {
+    "length": "medium",
+    "style": "same"
+  },
+  "started_at": "2026-02-02T22:06:12.871452",
+  "steps": [
+    {
+      "name": "Dosya Okuma",
+      "timestamp": "2026-02-02T22:06:12.871876",
+      "details": {}
+    },
+    {
+      "name": "Metin Temizleme",
+      "timestamp": "2026-02-02T22:06:12.931815",
+      "details": {},
+      "duration_seconds": 0.06
+    },
+    {
+      "name": "Örnekleme",
+      "timestamp": "2026-02-02T22:06:13.227102",
+      "details": {},
+      "duration_seconds": 0.295
+    },
+    {
+      "name": "NLP Analizi",
+      "timestamp": "2026-02-02T22:06:13.278780",
+      "details": {},
+      "duration_seconds": 0.052
+    },
+    {
+      "name": "Analiz Tamamlandı",
+      "timestamp": "2026-02-02T22:06:18.961356",
+      "details": {},
+      "duration_seconds": 5.683
+    },
+    {
+      "name": "Hikaye Üretimi",
+      "timestamp": "2026-02-02T22:06:18.961492",
+      "details": {},
+      "duration_seconds": 0.0
+    },
+    {
+      "name": "Tamamlandı",
+      "timestamp": "2026-02-02T22:06:44.214935",
+      "details": {},
+      "duration_seconds": 25.253
+    }
+  ],
+  "metrics": {
+    "file_size_bytes": 290077,
+    "text_hash": "adc9aee924df625fd662e89ee0e6fed0",
+    "original_text_size": 290077,
+    "cleaned_text_size": 268083,
+    "removed_characters": 21994,
+    "removed_percent": 7.58,
+    "num_samples": 4,
+    "sample_size": 30000,
+    "total_analyzed_chars": 119753,
+    "analysis_results": {
+      "characters_found": 10,
+      "keywords_found": 20,
+      "mood_words_found": 15,
+      "sentiment_polarity": 0.09919729394475035,
+      "sentiment_subjectivity": 0.48852287892985635
+    },
+    "story_word_count": 1340
+  },
+  "errors": [],
+  "status": "success",
+  "total_duration_seconds": 31.343,
+  "ended_at": "2026-02-02T22:06:44.215073"
+}

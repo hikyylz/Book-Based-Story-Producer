@@ -1,0 +1,74 @@
+{
+  "session_id": "20260202_220123",
+  "book_name": "The Great Gatsby.txt",
+  "settings": {
+    "length": "medium",
+    "style": "same"
+  },
+  "started_at": "2026-02-02T22:01:23.983773",
+  "steps": [
+    {
+      "name": "Dosya Okuma",
+      "timestamp": "2026-02-02T22:01:23.984568",
+      "details": {}
+    },
+    {
+      "name": "Metin Temizleme",
+      "timestamp": "2026-02-02T22:01:24.044692",
+      "details": {},
+      "duration_seconds": 0.06
+    },
+    {
+      "name": "Örnekleme",
+      "timestamp": "2026-02-02T22:01:24.336687",
+      "details": {},
+      "duration_seconds": 0.292
+    },
+    {
+      "name": "NLP Analizi",
+      "timestamp": "2026-02-02T22:01:24.388316",
+      "details": {},
+      "duration_seconds": 0.052
+    },
+    {
+      "name": "Analiz Tamamlandı",
+      "timestamp": "2026-02-02T22:01:30.087750",
+      "details": {},
+      "duration_seconds": 5.699
+    },
+    {
+      "name": "Hikaye Üretimi",
+      "timestamp": "2026-02-02T22:01:30.087882",
+      "details": {},
+      "duration_seconds": 0.0
+    }
+  ],
+  "metrics": {
+    "file_size_bytes": 290077,
+    "text_hash": "adc9aee924df625fd662e89ee0e6fed0",
+    "original_text_size": 290077,
+    "cleaned_text_size": 268083,
+    "removed_characters": 21994,
+    "removed_percent": 7.58,
+    "num_samples": 4,
+    "sample_size": 30000,
+    "total_analyzed_chars": 119753,
+    "analysis_results": {
+      "characters_found": 10,
+      "keywords_found": 20,
+      "mood_words_found": 15,
+      "sentiment_polarity": 0.09919729394475035,
+      "sentiment_subjectivity": 0.48852287892985635
+    }
+  },
+  "errors": [
+    {
+      "step": null,
+      "error": "429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 0, model: gemini-2.0-flash\\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 0, model: gemini-2.0-flash\\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_input_token_count, limit: 0, model: gemini-2.0-flash\\nPlease retry in 29.454387808s.', 'status': 'RESOURCE_EXHAUSTED', 'details': [{'@type': 'type.googleapis.com/google.rpc.Help', 'links': [{'description': 'Learn more about Gemini API quotas', 'url': 'https://ai.google.dev/gemini-api/docs/rate-limits'}]}, {'@type': 'type.googleapis.com/google.rpc.QuotaFailure', 'violations': [{'quotaMetric': 'generativelanguage.googleapis.com/generate_content_free_tier_requests', 'quotaId': 'GenerateRequestsPerDayPerProjectPerModel-FreeTier', 'quotaDimensions': {'location': 'global', 'model': 'gemini-2.0-flash'}}, {'quotaMetric': 'generativelanguage.googleapis.com/generate_content_free_tier_requests', 'quotaId': 'GenerateRequestsPerMinutePerProjectPerModel-FreeTier', 'quotaDimensions': {'location': 'global', 'model': 'gemini-2.0-flash'}}, {'quotaMetric': 'generativelanguage.googleapis.com/generate_content_free_tier_input_token_count', 'quotaId': 'GenerateContentInputTokensPerModelPerMinute-FreeTier', 'quotaDimensions': {'location': 'global', 'model': 'gemini-2.0-flash'}}]}, {'@type': 'type.googleapis.com/google.rpc.RetryInfo', 'retryDelay': '29s'}]}}",
+      "timestamp": "2026-02-02T22:01:30.486702"
+    }
+  ],
+  "status": "failed",
+  "total_duration_seconds": 6.103,
+  "ended_at": "2026-02-02T22:01:30.487493"
+}

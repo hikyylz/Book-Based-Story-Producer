@@ -27,7 +27,7 @@ class StoryGenerator:
         prompt = self._build_prompt(analysis_data, length, style)
 
         response = self.client.models.generate_content(
-            model='gemini-2.0-flash',
+            model='gemini-2.5-flash',
             contents=prompt
         )
 
