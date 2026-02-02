@@ -37,7 +37,7 @@ class StoryProducerService:
     def __init__(self):
         self.analyzer = BookAnalyzer()
         self.generator = StoryGenerator(GEMINI_API_KEY)
-        self._analysis_cache = {}  # Kitap analiz sonuçlarını önbelleğe al
+        self._analysis_cache = {}  # Cache book analysis results
 
     def produce(self, file_path: str, length: str = "medium", style: str = "same") -> dict:
         # 1. Read file
@@ -47,7 +47,7 @@ class StoryProducerService:
         except FileNotFoundError:
             raise HTTPException(status_code=404, detail="Book file not found")
         
-        # 2. Cache kontrolü - aynı kitap daha önce analiz edilmiş mi?
+        # 2. Check cache - has this book been analyzed before?
         text_hash = hashlib.md5(text.encode()).hexdigest()
         
         if text_hash in self._analysis_cache:
@@ -65,18 +65,18 @@ class StoryProducerService:
         }
 
     async def produce_with_progress(self, file_path: str, length: str = "medium", style: str = "same"):
-        """İlerleme durumu ile hikaye üretimi - SSE için generator."""
+        """Story generation with progress status - generator for SSE."""
         
-        # Kitap adını al
+        # Get book name
         book_name = os.path.basename(file_path)
         
-        # Loglama oturumu başlat
+        # Start logging session
         story_logger.start_session(book_name, length, style)
         
         try:
-            # 1. Dosya okuma
-            story_logger.log_step("Dosya Okuma")
-            yield f"data: {json.dumps({'step': 1, 'status': 'Dosya okunuyor...', 'progress': 5})}\n\n"
+            # 1. File reading
+            story_logger.log_step("File Reading")
+            yield f"data: {json.dumps({'step': 1, 'status': 'Reading file...', 'progress': 5})}\n\n"
             await asyncio.sleep(0.05)
             
             try:
@@ -84,58 +84,58 @@ class StoryProducerService:
                     text = f.read()
                 story_logger.log_metric("file_size_bytes", len(text))
             except FileNotFoundError:
-                story_logger.log_error("Kitap dosyası bulunamadı", "Dosya Okuma")
+                story_logger.log_error("Book file not found", "File Reading")
                 story_logger.end_session(success=False)
-                yield f"data: {json.dumps({'error': 'Kitap dosyası bulunamadı'})}\n\n"
+                yield f"data: {json.dumps({'error': 'Book file not found'})}\n\n"
                 return
             
-            # 2. Cache kontrolü
+            # 2. Cache check
             text_hash = hashlib.md5(text.encode()).hexdigest()
             story_logger.log_metric("text_hash", text_hash)
             
             if text_hash in self._analysis_cache:
                 story_logger.log_cache_hit(book_name)
-                cache_msg = json.dumps({'step': 2, 'status': "Cache'den yükleniyor...", 'progress': 50, 'cached': True})
+                cache_msg = json.dumps({'step': 2, 'status': "Loading from cache...", 'progress': 50, 'cached': True})
                 yield f"data: {cache_msg}\n\n"
                 await asyncio.sleep(0.1)
                 analysis_data = self._analysis_cache[text_hash]
             else:
-                # 3. Metin temizleme
-                story_logger.log_step("Metin Temizleme")
-                yield f"data: {json.dumps({'step': 2, 'status': 'Metin temizleniyor...', 'progress': 10})}\n\n"
+                # 3. Text cleaning
+                story_logger.log_step("Text Cleaning")
+                yield f"data: {json.dumps({'step': 2, 'status': 'Cleaning text...', 'progress': 10})}\n\n"
                 await asyncio.sleep(0.05)
                 
                 original_size = len(text)
                 cleaned_text = await asyncio.to_thread(self.analyzer._clean_text, text)
                 story_logger.log_text_stats(original_size, len(cleaned_text))
                 
-                # 4. Örnekleme
-                story_logger.log_step("Örnekleme")
-                yield f"data: {json.dumps({'step': 3, 'status': 'Metin örnekleniyor...', 'progress': 20})}\n\n"
+                # 4. Sampling
+                story_logger.log_step("Sampling")
+                yield f"data: {json.dumps({'step': 3, 'status': 'Sampling text...', 'progress': 20})}\n\n"
                 await asyncio.sleep(0.05)
                 
                 samples = self.analyzer._get_strategic_samples(cleaned_text)
                 total_sample_size = sum(len(s) for s in samples)
                 story_logger.log_sampling(len(samples), self.analyzer.sample_size, total_sample_size)
                 
-                # 5. NLP Analizi
-                story_logger.log_step("NLP Analizi")
-                yield f"data: {json.dumps({'step': 4, 'status': 'NLP analizi yapılıyor...', 'progress': 30})}\n\n"
+                # 5. NLP Analysis
+                story_logger.log_step("NLP Analysis")
+                yield f"data: {json.dumps({'step': 4, 'status': 'Performing NLP analysis...', 'progress': 30})}\n\n"
                 
                 analysis_data = await asyncio.to_thread(
                     self.analyzer._analyze_samples, samples, cleaned_text
                 )
                 story_logger.log_analysis_results(analysis_data)
                 
-                # Cache'e kaydet
+                # Save to cache
                 self._analysis_cache[text_hash] = analysis_data
                 
-                story_logger.log_step("Analiz Tamamlandı")
-                yield f"data: {json.dumps({'step': 5, 'status': 'Analiz tamamlandı!', 'progress': 60, 'analysis': analysis_data})}\n\n"
+                story_logger.log_step("Analysis Completed")
+                yield f"data: {json.dumps({'step': 5, 'status': 'Analysis completed!', 'progress': 60, 'analysis': analysis_data})}\n\n"
             
-            # 6. Hikaye üretimi
-            story_logger.log_step("Hikaye Üretimi")
-            yield f"data: {json.dumps({'step': 6, 'status': 'Hikaye yazılıyor...', 'progress': 70})}\n\n"
+            # 6. Story generation
+            story_logger.log_step("Story Generation")
+            yield f"data: {json.dumps({'step': 6, 'status': 'Writing story...', 'progress': 70})}\n\n"
             await asyncio.sleep(0.05)
             
             story = await asyncio.to_thread(
@@ -143,11 +143,11 @@ class StoryProducerService:
             )
             story_logger.log_story_generated(story)
             
-            # 7. Tamamlandı
-            story_logger.log_step("Tamamlandı")
+            # 7. Completed
+            story_logger.log_step("Completed")
             story_logger.end_session(success=True)
             
-            yield f"data: {json.dumps({'step': 7, 'status': 'Tamamlandı!', 'progress': 100, 'story': story, 'analysis': analysis_data})}\n\n"
+            yield f"data: {json.dumps({'step': 7, 'status': 'Completed!', 'progress': 100, 'story': story, 'analysis': analysis_data})}\n\n"
             
         except Exception as e:
             story_logger.log_error(str(e))
@@ -182,7 +182,7 @@ async def produce_story(request: StoryRequest):
 
 @app.get("/produce-story-stream")
 async def produce_story_stream(book_filename: str, length: str = "medium", style: str = "same"):
-    """SSE endpoint - gerçek zamanlı ilerleme durumu."""
+    """SSE endpoint - real-time progress status."""
     file_path = os.path.join("static/books", book_filename)
     
     return StreamingResponse(
