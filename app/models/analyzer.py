@@ -18,17 +18,17 @@ except LookupError:
 
 class BookAnalyzer:
     def __init__(self):
-        # DAHA HIZLI: Sadece NER ve POS tagging için özelleştirilmiş pipeline
+        # FASTER: Customized pipeline for NER and POS tagging only
         self.nlp = spacy.load('en_core_web_sm', disable=['parser', 'lemmatizer', 'textcat'])
-        # Büyük kitaplar için max_length limitini artır
+        # Increase max_length limit for large books
         self.nlp.max_length = 2_000_000
         self.rake = Rake()
         
-        # Örnekleme parametreleri - DAHA HIZLI
-        self.sample_size = 30_000  # 50KB -> 30KB (daha hızlı)
-        self.num_samples = 4  # 5 -> 4 örnek
+        # Sampling parameters - FASTER
+        self.sample_size = 30_000  # 50KB -> 30KB (faster)
+        self.num_samples = 4  # 5 -> 4 samples
         
-        # Mood words için önceden tanımlanmış kelime listeleri (TextBlob çağrısı yerine)
+        # Pre-defined word lists for mood words (instead of TextBlob calls)
         self.positive_mood_words = {
             'beautiful', 'happy', 'bright', 'wonderful', 'lovely', 'gentle', 'warm', 
             'sweet', 'peaceful', 'joyful', 'pleasant', 'delightful', 'charming', 
@@ -42,13 +42,13 @@ class BookAnalyzer:
             'sinister', 'tragic', 'mournful', 'desolate', 'haunting', 'fierce'
         }
         
-        # ===== TÜM REGEX PATTERN'LERİNİ ÖNCEDEN DERLE =====
+        # ===== PRECOMPILE ALL REGEX PATTERNS =====
         self._compile_patterns()
 
     def _compile_patterns(self):
-        """Tüm regex pattern'lerini önceden derle - performans için."""
+        """Precompile all regex patterns - for performance."""
         
-        # === 1. GUTENBERG SPESİFİK ===
+        # === 1. GUTENBERG SPECIFIC ===
         self._gutenberg_start = re.compile(
             r'\*\*\*\s*START OF (?:THE|THIS) PROJECT GUTENBERG.*?\*\*\*|'
             r'START OF THE PROJECT GUTENBERG EBOOK',
@@ -62,7 +62,7 @@ class BookAnalyzer:
             re.IGNORECASE
         )
         
-        # === 2. KİTAP SONU İŞARETLERİ ===
+        # === 2. BOOK END MARKERS ===
         self._book_end_markers = re.compile(
             r'(?:^|\n)(?:'
             r'(?:THE\s+)?END\.?\s*$|'
@@ -73,7 +73,7 @@ class BookAnalyzer:
             re.IGNORECASE | re.MULTILINE
         )
         
-        # === 3. YAYINCI/PLATFORM BİLGİLERİ ===
+        # === 3. PUBLISHER/PLATFORM INFO ===
         self._publisher_noise = re.compile(
             r'(?:'
             r'Project Gutenberg|\bGutenberg\b|'
@@ -93,7 +93,7 @@ class BookAnalyzer:
             re.IGNORECASE
         )
         
-        # === 4. EDİTÖRYAL NOTLAR ===
+        # === 4. EDITORIAL NOTES ===
         self._editorial_notes = re.compile(
             r'(?:'
             r'Transcriber\'?s?\s+[Nn]ote[s]?[:\s][^\n]*|'
@@ -109,7 +109,7 @@ class BookAnalyzer:
             re.IGNORECASE
         )
         
-        # === 5. FORMAT ARTEFAKTLARI ===
+        # === 5. FORMAT ARTIFACTS ===
         self._format_artifacts = re.compile(
             r'(?:'
             r'\[Illustration[^\]]*\]|'
@@ -131,7 +131,7 @@ class BookAnalyzer:
             re.IGNORECASE | re.MULTILINE
         )
         
-        # === 6. TEKNİK BİLGİLER ===
+        # === 6. TECHNICAL INFO ===
         self._technical_info = re.compile(
             r'(?:'
             r'\bASCII\b|\bUTF-?8\b|\bUnicode\b|'
@@ -144,16 +144,16 @@ class BookAnalyzer:
             re.IGNORECASE
         )
         
-        # === 7. BOŞLUK DÜZENLEMELERİ ===
+        # === 7. WHITESPACE ADJUSTMENTS ===
         self._multi_newline = re.compile(r'\n{3,}')
         self._multi_space = re.compile(r' {2,}')
 
     def _clean_text(self, text):
-        """Genel amaçlı metin temizleme - TÜM kaynaklar için çalışır."""
+        """General purpose text cleaning - works for ALL sources."""
         
         original_len = len(text)
         
-        # 1. Gutenberg başlangıç/bitiş marker'larını kontrol et
+        # 1. Check Gutenberg start/end markers
         match = self._gutenberg_start.search(text)
         if match:
             text = text[match.end():]
@@ -162,18 +162,18 @@ class BookAnalyzer:
         if match:
             text = text[:match.start()]
         
-        # 2. Kitap sonu işaretlerini bul (THE END, FINIS vb.) - son %30'da ise kırp
+        # 2. Find book end markers (THE END, FINIS etc.) - trim if in last 30%
         match = self._book_end_markers.search(text)
         if match and match.start() > len(text) * 0.7:
             text = text[:match.start()]
         
-        # 3. Tüm noise pattern'lerini tek seferde temizle
+        # 3. Clean all noise patterns at once
         text = self._publisher_noise.sub('', text)
         text = self._editorial_notes.sub('', text)
         text = self._format_artifacts.sub('', text)
         text = self._technical_info.sub('', text)
         
-        # 4. Boşlukları düzenle
+        # 4. Normalize whitespace
         text = self._multi_newline.sub('\n\n', text)
         text = self._multi_space.sub(' ', text)
         text = text.strip()
@@ -181,13 +181,13 @@ class BookAnalyzer:
         return text
 
     def _analyze_samples(self, samples, cleaned_text):
-        """Örnekleri analiz et - SSE progress için ayrı metod."""
+        """Analyze samples - separate method for SSE progress."""
         all_characters = Counter()
         all_mood_words = Counter()
         all_adjectives = Counter()
         all_verbs = Counter()
         
-        # Batch processing ile spaCy
+        # Batch processing with spaCy
         for doc in self.nlp.pipe(samples, batch_size=2):
             chars = self._extract_characters(doc)
             all_characters.update(chars)
@@ -201,7 +201,7 @@ class BookAnalyzer:
                 elif token.pos_ == 'VERB':
                     all_verbs[token.text.lower()] += 1
         
-        # Sentiment analizi
+        # Sentiment analysis
         sentiment_sample = cleaned_text[:20000]
         sentiments = self._analyze_sentiment(sentiment_sample)
         
@@ -222,20 +222,20 @@ class BookAnalyzer:
     def analyze(self, text):
         """Analyze text and extract data into categories - OPTIMIZED."""
         
-        # Genel amaçlı metin temizleme (tüm kaynaklar için)
+        # General purpose text cleaning (for all sources)
         cleaned_text = self._clean_text(text)
         
-        # Stratejik örnekleme
+        # Strategic sampling
         samples = self._get_strategic_samples(cleaned_text)
         
-        # Analiz
+        # Analysis
         return self._analyze_samples(samples, cleaned_text)
 
     def _get_strategic_samples(self, text):
-        """Metinden stratejik örnekler al - baştan, ortadan ve sondan."""
+        """Get strategic samples from text - from beginning, middle and end."""
         text_len = len(text)
         
-        # Metin zaten küçükse olduğu gibi döndür
+        # If text is already small, return as is
         if text_len <= self.sample_size:
             return [text]
         
@@ -247,7 +247,7 @@ class BookAnalyzer:
             end = min(start + self.sample_size, text_len)
             sample = text[start:end]
             
-            # Cümle ortasında kesmemek için en yakın noktayı bul
+            # Find nearest period to avoid cutting in middle of sentence
             last_period = sample.rfind('.')
             if last_period > self.sample_size * 0.8:
                 sample = sample[:last_period + 1]
@@ -257,17 +257,17 @@ class BookAnalyzer:
         return samples
 
     def _extract_mood_words_fast(self, doc):
-        """Hızlı mood word çıkarımı - TextBlob olmadan, önceden tanımlı listelerle."""
+        """Fast mood word extraction - without TextBlob, using pre-defined lists."""
         mood_words = Counter()
         
         for token in doc:
             if token.pos_ in ['ADJ', 'ADV']:
                 word_lower = token.text.lower()
                 
-                # Önceden tanımlı mood listelerinde var mı?
+                # Is it in pre-defined mood lists?
                 if word_lower in self.positive_mood_words or word_lower in self.negative_mood_words:
                     mood_words[token.text] += 1
-                # Veya 5+ karakterli anlamlı sıfatlar
+                # Or meaningful adjectives with 5+ characters
                 elif len(word_lower) >= 6 and token.pos_ == 'ADJ' and word_lower.isalpha():
                     mood_words[token.text] += 1
         
@@ -277,16 +277,16 @@ class BookAnalyzer:
         """Extract character names - returns Counter for aggregation."""
         characters = Counter()
         
-        # Genişletilmiş filtreleme listesi
+        # Extended filtering list
         excluded_names = {
-            # Platform isimleri
+            # Platform names
             'gutenberg', 'project', 'ascii', 'ebook', 'kindle', 'amazon', 'google',
-            # Kitap bölümleri
+            # Book sections
             'chapter', 'contents', 'illustration', 'transcriber', 'volume', 'book',
             'introduction', 'preface', 'foreword', 'epilogue', 'appendix', 'index',
-            # Roller
+            # Roles
             'editor', 'translator', 'publisher', 'author', 'narrator',
-            # Yaygın yanlış pozitifler
+            # Common false positives
             'god', 'lord', 'sir', 'madam', 'mr', 'mrs', 'miss', 'master', 'doctor'
         }
         
@@ -295,11 +295,11 @@ class BookAnalyzer:
                 name = ent.text.strip()
                 name_lower = name.lower()
                 
-                # Filtreleme kriterleri
+                # Filtering criteria
                 if (name_lower not in excluded_names and 
                     len(name) > 1 and 
-                    not name.isupper() and  # Tamamı büyük harf değilse
-                    name[0].isupper()):  # İlk harf büyükse
+                    not name.isupper() and  # Not all uppercase
+                    name[0].isupper()):  # First letter is uppercase
                     characters[name] += 1
         
         return characters
@@ -317,7 +317,7 @@ class BookAnalyzer:
         self.rake.extract_keywords_from_text(text)
         keywords = self.rake.get_ranked_phrases()
         
-        # Genişletilmiş noise filtreleme
+        # Extended noise filtering
         noise_words = {
             'gutenberg', 'project', 'ebook', 'ascii', 'kindle', 'transcriber',
             'copyright', 'published', 'edition', 'chapter', 'contents',
@@ -332,5 +332,5 @@ class BookAnalyzer:
         
         return filtered_keywords[:20]
 
-    # Not: _extract_mood_words artık _extract_mood_words_fast olarak optimize edildi
-    # Not: _extract_literary_features artık analyze() içinde inline yapılıyor
+    # Note: _extract_mood_words is now optimized as _extract_mood_words_fast
+    # Note: _extract_literary_features is now done inline in analyze()
