@@ -2,6 +2,8 @@ This repo is about a self made project.
 It is a book based story producer.
 If a person wants to read a short story regarding to a literary book, They are able to create a shorter version of it. The produced story must contain same mood, features and vibe of the original literary book. So person would have an idea what the book make them feels like.
 
+<img width="1440" height="900" alt="Screenshot 2026-02-10 at 22 08 23" src="https://github.com/user-attachments/assets/4ca5f387-2ab4-44f2-a8a6-bf71503b665f" />
+
 # Book-Based Story Producer
 
 This project takes a novel in PDF or TXT format as input, analyzes the text, and extracts the literary identity of the book (character names, emotions, atmosphere, important words). It then uses AI to generate a new story that matches the literary style, without giving the original book to the AI—only the extracted data.
