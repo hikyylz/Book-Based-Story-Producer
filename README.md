@@ -73,3 +73,5 @@ This project takes a novel in PDF or TXT format as input, analyzes the text, and
 - Currently optimized for English texts.
 - May need performance improvements for large files.
 - Requires Google Gemini API credits.
+
+  
